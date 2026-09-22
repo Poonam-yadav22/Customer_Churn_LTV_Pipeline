@@ -18,3 +18,11 @@
 - Contract Type vs. Churn Rate deep-dive
 - Feature correlation matrix & LTV model preparation
 -
+## Phase 4: Machine Learning & Modeling
+- [x] Data Preprocessing & One-Hot Encoding
+- [x] Baseline Models (Logistic Regression & Random Forest)
+- [x] Hyperparameter Tuning (GridSearchCV)
+- [x] Model Evaluation & Visualizations
+- [x] Model Serialization (`Models/churn_random_forest_model.pkl`)
+- [x] ML Summary Report (`reports/ml_summary.md`)
+-
