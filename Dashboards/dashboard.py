@@ -63,4 +63,3 @@ if st.sidebar.button("Predict Churn & Analyze"):
             
     except Exception as e:
         st.error(f"FastAPI Server Connection Error: {e}")
-        
