@@ -25,4 +25,17 @@
 - [x] Model Evaluation & Visualizations
 - [x] Model Serialization (`Models/churn_random_forest_model.pkl`)
 - [x] ML Summary Report (`reports/ml_summary.md`)
--
+-## System Architecture Status: Fully Integrated (Phase 4 Completed)
+
+- **Backend (FastAPI)**: Running on http://127.0.0.1:8000
+  - Prediction Engine (`/predict`)
+  - Churn Probability & Risk Segmentation
+  - LTV Prediction Engine
+  - SHAP Feature Importance Explainer
+  
+- **Frontend (Streamlit)**: Running on http://localhost:8501
+  - Interactive Customer Profile Input Sidebar
+  - Real-time API consumption
+  - Key Metrics Display (Churn Risk %, Historic LTV, Future LTV)
+  - Actionable Retention Recommendations
+  - Top SHAP Churn Drivers Visualization
