@@ -1,65 +1,66 @@
 import streamlit as st
 import requests
 
-st.set_page_config(
-    page_title="Customer Churn & LTV Dashboard",
-    layout="wide"
-)
+# Page Config
+st.set_page_config(page_title="Customer Churn & LTV Engine", layout="wide")
 
-st.title("📊 Customer Churn, LTV & SHAP Insight Dashboard")
-st.markdown("FastAPI Predictor Engine ke saath connected interactive UI")
+st.title("📊 Customer Churn, LTV & SHAP Dashboard")
+st.write("FastAPI Predictor Engine ke saath connected interactive UI")
 
-# Sidebar - Customer Profile Input
+# Sidebar - Customer Inputs
 st.sidebar.header("Customer Profile Input")
 
 tenure = st.sidebar.slider("Tenure (Months)", min_value=1, max_value=72, value=12)
-monthly_charges = st.sidebar.number_input("Monthly Charges ($)", min_value=18.0, max_value=150.0, value=70.0)
-total_charges = st.sidebar.number_input("Total Charges ($)", min_value=18.0, max_value=9000.0, value=840.0)
+monthly_charges = st.sidebar.number_input("Monthly Charges ($)", min_value=10.0, max_value=200.0, value=70.0)
+total_charges = st.sidebar.number_input("Total Charges ($)", min_value=10.0, max_value=10000.0, value=840.0)
+
 contract = st.sidebar.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
 internet_service = st.sidebar.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
 
-payload = {
-    "tenure": tenure,
-    "MonthlyCharges": monthly_charges,
-    "TotalCharges": total_charges,
-    "Contract": contract,
-    "InternetService": internet_service
-}
+# API URL
+API_URL = "http://127.0.0.1:8000/predict"
 
 if st.sidebar.button("Predict Churn & Analyze"):
+    # Payload structured exactly as expected by FastAPI CustomerData schema
+    payload = {
+        "tenure": int(tenure),
+        "MonthlyCharges": float(monthly_charges),
+        "TotalCharges": float(total_charges),
+        "Contract": str(contract),
+        "InternetService": str(internet_service)
+    }
+
     try:
-        # API Hit to FastAPI Backend
-        response = requests.post("http://127.0.0.1:8000/predict", json=payload)
+        response = requests.post(API_URL, json=payload)
         
         if response.status_code == 200:
             res_data = response.json()
             
+            st.success("Prediction Successfully Completed!")
+            
+            # Key Metrics Layout
             col1, col2, col3 = st.columns(3)
-            
-            churn_prob = res_data["churn_probability"]
-            col1.metric("Churn Risk Probability", f"{round(churn_prob * 100, 2)}%")
-            
-            ltv = res_data["ltv_segmentation"]
-            col2.metric("Historic LTV", f"${ltv['historic_ltv']}")
-            col3.metric("Expected Future LTV", f"${ltv['expected_future_ltv']}")
-            
+            col1.metric("Churn Probability", f"{res_data['churn_probability'] * 100:.2f}%")
+            col2.metric("Historic LTV", f"${res_data['ltv_segmentation']['historic_ltv']}")
+            col3.metric("Expected Future LTV", f"${res_data['ltv_segmentation']['expected_future_ltv']}")
+
             st.divider()
-            
-            # Risk & Action Plan
-            st.subheader("🎯 Risk & Retention Recommendation")
-            st.info(f"**Customer Segment:** {ltv['customer_segment']}")
-            st.warning(f"**Action Required:** {ltv['recommended_action']}")
-            
-            # SHAP Explainability Drivers
+
+            # Customer Segment & Recommended Action
+            st.subheader("📌 Customer Segment & Action Recommendation")
+            st.info(f"**Segment**: {res_data['ltv_segmentation']['customer_segment']}")
+            st.warning(f"**Recommended Action**: {res_data['ltv_segmentation']['recommended_action']}")
+
             st.divider()
+
+            # SHAP Drivers
             st.subheader("🔍 SHAP Top Churn Risk Drivers")
             drivers = res_data["shap_explainability"]["top_churn_risk_drivers"]
-            
             for feature, value in drivers.items():
-                st.write(f"• **{feature}**: Impact Factor `{value}`")
-                
+                st.write(f"- **{feature}**: Impact Factor `{value}`")
+
         else:
-            st.error("API response failed. Server issue detected.")
-            
+            st.error(f"API Error ({response.status_code}): {response.text}")
+
     except Exception as e:
         st.error(f"FastAPI Server Connection Error: {e}")
