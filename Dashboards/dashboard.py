@@ -18,7 +18,7 @@ contract = st.sidebar.selectbox("Contract Type", ["Month-to-month", "One year", 
 internet_service = st.sidebar.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
 
 # API URL
-API_URL = "http://127.0.0.1:8000/predict"
+API_URL = "https://customer-churn-ltv-pipeline.onrender.com/predict"
 
 if st.sidebar.button("Predict Churn & Analyze"):
     # Payload structured exactly as expected by FastAPI CustomerData schema
